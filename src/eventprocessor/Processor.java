@@ -2,6 +2,7 @@ package eventprocessor;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -14,25 +15,32 @@ import java.util.List;
 
 public class Processor {
 	public static final int QUEUE_SIZE = 5;
-	private static List<String> eventQueue = new LinkedList<String>();
 
-	public static void main(String[] args) {		
+	public enum EVENT {
+		A, B, IDLE, ILLEGAL
+	};
+
+	private static List<EVENT> eventQueue = new LinkedList<EVENT>();
+
+	public static void main(String[] args) {
 		for (int i = 0; i < QUEUE_SIZE; i++) {
-			eventQueue.add("IDLE");
+			eventQueue.add(EVENT.IDLE);
 		}
+		BufferedReader bufferedReader = new BufferedReader(
+				new InputStreamReader(System.in));
+
 		while (true) {
 			System.out.println("Enter event");
+
 			try {
-				String event = new BufferedReader(new InputStreamReader(
-						System.in)).readLine();
-				if (event.toUpperCase().equals("A")
-						|| event.toUpperCase().equals("B")
-						|| event.toUpperCase().equals("IDLE")) {
-					processQueue(event);					
+				String event = bufferedReader.readLine();
+				EVENT enumEvent = eventToEnum(event);
+				if (!enumEvent.equals(EVENT.ILLEGAL)) {
+					processQueue(enumEvent);
 				} else {
 					System.out.println("Input completed");
-					processQueue("IDLE");
-					processQueue("IDLE");
+					processQueue(EVENT.IDLE);
+					processQueue(EVENT.IDLE);
 					break;
 				}
 			} catch (Exception e) {
@@ -40,16 +48,28 @@ public class Processor {
 			}
 		}
 	}
-	
-	private static void processQueue(String event) {
+
+	private static EVENT eventToEnum(String event) {
+		if (event.toUpperCase().equals("A")) {
+			return EVENT.A;
+		} else if (event.toUpperCase().equals("B")) {
+			return EVENT.B;
+		} else if (event.toUpperCase().equals("IDLE")) {
+			return EVENT.IDLE;
+		} else
+			return EVENT.ILLEGAL;
+	}
+
+	private static void processQueue(EVENT event) {
 		eventQueue.remove(0);
 		eventQueue.add(event);
-		
-		if (eventQueue.get(2).toUpperCase().equals("A")
-				&& !eventQueue.get(0).toUpperCase().equals("B")
-				&& !eventQueue.get(1).toUpperCase().equals("B")
-				&& !eventQueue.get(3).toUpperCase().equals("B")
-				&& !eventQueue.get(4).toUpperCase().equals("B")) {
+		Iterator<EVENT> queueIt = eventQueue.iterator();
+
+		if (!queueIt.next().equals(EVENT.B) 
+				&& !queueIt.next().equals(EVENT.B)
+				&& queueIt.next().equals(EVENT.A)
+				&& !queueIt.next().equals(EVENT.B)
+				&& !queueIt.next().equals(EVENT.B)) {
 
 			System.out.println("A");
 		}
