@@ -21,8 +21,12 @@ public class Processor {
 	};
 
 	private static List<EVENT> eventQueue = new LinkedList<EVENT>();
-
+	
 	public static void main(String[] args) {
+		Processor.processEventStream();
+	}
+
+	public static void processEventStream() {
 		for (int i = 0; i < QUEUE_SIZE; i++) {
 			eventQueue.add(EVENT.IDLE);
 		}
